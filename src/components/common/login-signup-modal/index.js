@@ -1,12 +1,14 @@
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 
-const LoginSignupModal = () => {
+const LoginSignupModal = ({ brand, header }) => {
+  const brandName = brand?.name || "Real Estate";
+
   return (
     <div className="modal-content">
       <div className="modal-header">
         <h5 className="modal-title" id="exampleModalToggleLabel">
-          Welcome to Realton
+          {header?.authWelcome || `Welcome to ${brandName}`}
         </h5>
         <button
           type="button"

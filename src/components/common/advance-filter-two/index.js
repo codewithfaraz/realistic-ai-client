@@ -87,17 +87,15 @@ const AdvanceFilterModal = ({ filterFunctions }) => {
 
   // ─── Apply local filters to parent and close modal ───
   const handleSearch = () => {
-    filterFunctions?.handlepriceRange(localPriceRange);
-    filterFunctions?.handlebedrooms(localBedrooms);
-    filterFunctions?.handlebathroms(localBathroms);
-    filterFunctions?.setPropertyTypes(localPropertyTypes);
-    filterFunctions?.handlelocation(localLocation);
-    filterFunctions?.handlesquirefeet(localSquirefeet);
-
-    // Directly set categories (amenities) on parent
-    if (filterFunctions?.setCategories) {
-      filterFunctions.setCategories([...localCategories]);
-    }
+    filterFunctions?.applyFilterValues?.({
+      priceRange: localPriceRange,
+      bedrooms: localBedrooms,
+      bathroms: localBathroms,
+      propertyTypes: localPropertyTypes,
+      location: localLocation,
+      squirefeet: localSquirefeet,
+      categories: localCategories,
+    });
 
     // Close the modal programmatically
     const modalEl = document.getElementById("advanceSeachModal");

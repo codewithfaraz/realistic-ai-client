@@ -3,20 +3,21 @@ import React from "react";
 const featuresData = [
   {
     points: [
-      "Become a UI/UX designer.",
-      "You will be able to start earning money Figma skills.",
-      "Build a UI project from beginning to end.",
-      "Work with colors & fonts.",
-      "You will create your own UI Kit.",
+      "Confirm the seller, owner or authorized agent identity.",
+      "Verify ownership, allotment or registry documents before token.",
+      "Compare access roads, schools, markets and commute time.",
+      "Ask about transfer fees, taxes and society charges.",
+      "Check water, gas, power backup and maintenance history.",
+      "Keep token, payment schedule and possession terms in writing.",
     ],
   },
   {
     points: [
-      "Build & test a complete mobile app.",
-      "Learn to design mobile apps & websites.",
-      "Design 3 different logos.",
-      "Create low-fidelity wireframe.",
-      "Downloadable exercise files.",
+      "Visit in daylight and after office hours if possible.",
+      "Inspect seepage, wiring, lifts, parking and security desk.",
+      "Confirm rent escalation, notice period and maintenance dues.",
+      "Use recent nearby transactions as a pricing reference.",
+      "Avoid pressure deals without document verification.",
     ],
   },
 ];

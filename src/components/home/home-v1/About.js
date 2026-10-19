@@ -3,9 +3,9 @@ import Link from "next/link";
 
 const About = () => {
   const featureList = [
-    "Find excellent deals",
-    "Friendly host & Fast support",
-    "List your own property",
+    "Verified listings and clearer documentation",
+    "Local guidance for Lahore, Islamabad, Karachi and Rawalpindi",
+    "Buying, selling and renting support in one place",
   ];
   return (
     <>
@@ -16,11 +16,12 @@ const About = () => {
             data-aos="fade-left"
           >
             <h2 className="title mb30">
-              Let’s find the right selling option for you
+              Make better property decisions with local market context
             </h2>
             <p className="text mb25 fz15">
-              As the complexity of buildings to increase, the field of
-              architecture
+              From DHA and Bahria to Gulberg, Clifton and Islamabad sectors, we
+              help visitors compare real homes, practical locations and the
+              details that matter before a visit.
             </p>
             <div className="list-style1 mb50">
               <ul>
@@ -32,7 +33,7 @@ const About = () => {
                 ))}
               </ul>
             </div>
-            <Link href="/grid-gull-3-col" className="ud-btn btn-white2">
+            <Link href="/listings" className="ud-btn btn-white2">
               Learn More<i className="fal fa-arrow-right-long"></i>
             </Link>
           </div>

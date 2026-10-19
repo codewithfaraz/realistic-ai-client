@@ -9,10 +9,16 @@ import Social from "./Social";
 import Subscribe from "./Subscribe";
 import MenuWidget from "./MenuWidget";
 import Copyright from "./Copyright";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 
-const Footer = () => {
+const Footer = ({ brand, footer }) => {
+  const siteSettings = useSiteSettings();
+  const resolvedBrand = brand || siteSettings.brand;
+  const resolvedFooter = footer || siteSettings.footer;
   const [isLoading, setIsLoading] = useState(true);
   const [footerQuickLinks, setFooterQuickLinks] = useState([]);
+  const logoUrl = resolvedBrand?.footerLogoUrl || resolvedBrand?.logoUrl;
+  const brandName = resolvedBrand?.name || "Real Estate";
   useEffect(() => {
     const fetchFooter = async () => {
       try {
@@ -33,13 +39,19 @@ const Footer = () => {
           <div className="col-lg-5">
             <div className="footer-widget mb-4 mb-lg-5">
               <Link className="footer-logo" href="/">
-                <Image
-                  width={138}
-                  height={44}
-                  className="mb40"
-                  src="/images/header-logo.svg"
-                  alt=""
-                />
+                {logoUrl ? (
+                  <img
+                    width={138}
+                    height={44}
+                    className="mb40"
+                    src={logoUrl}
+                    alt={brandName}
+                  />
+                ) : (
+                  <span className="d-inline-block mb40 fz24 fw600 text-white">
+                    {brandName}
+                  </span>
+                )}
               </Link>
               {/* <ContactMeta /> */}
               {/* <AppWidget /> */}
@@ -69,7 +81,7 @@ const Footer = () => {
       </div>
       {/* End .container */}
 
-      <Copyright />
+      <Copyright brand={resolvedBrand} footer={resolvedFooter} />
       {/* End copyright */}
     </>
   );

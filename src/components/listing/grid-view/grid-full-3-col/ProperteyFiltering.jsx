@@ -8,6 +8,51 @@ import FeaturedListings from "./FeatuerdListings";
 import PaginationTwo from "../../PaginationTwo";
 
 const ITEMS_PER_PAGE = 12;
+const DEFAULT_FILTERS = {
+  listingStatus: "All",
+  propertyTypes: [],
+  priceRange: [0, 100000000],
+  bedrooms: 0,
+  bathroms: 0,
+  location: "All Cities",
+  squirefeet: [],
+  yearBuild: [],
+  categories: [],
+  searchTerm: "",
+};
+
+const getListingsPayload = (response) => response?.data || response || {};
+
+const getListingItems = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (Array.isArray(payload.listings)) return payload.listings;
+  if (Array.isArray(payload.results)) return payload.results;
+  if (Array.isArray(payload.data?.items)) return payload.data.items;
+  if (Array.isArray(payload.data?.listings)) return payload.data.listings;
+  if (Array.isArray(payload.data?.results)) return payload.data.results;
+  if (Array.isArray(payload.data)) return payload.data;
+
+  return [];
+};
+
+const getListingTotal = (payload, items) =>
+  payload.total ??
+  payload.totalItems ??
+  payload.count ??
+  payload.pagination?.total ??
+  payload.meta?.total ??
+  payload.data?.total ??
+  payload.data?.totalItems ??
+  payload.data?.count ??
+  items.length;
+
+const getListingTotalPages = (payload, totalItems) =>
+  payload.totalPages ??
+  payload.pagination?.totalPages ??
+  payload.meta?.totalPages ??
+  payload.data?.totalPages ??
+  Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
 
 export default function ProperteyFiltering() {
   // API response data
@@ -35,32 +80,63 @@ export default function ProperteyFiltering() {
   const [yearBuild, setyearBuild] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
 
   // Hydration guard — prevent fetching with default filters before URL params are read
   // Must be STATE (not ref) so it batches with setPropertyTypes/setLocation in the same re-render
   const [hydrated, setHydrated] = useState(false);
 
+  const applyActiveFilters = useCallback((filters) => {
+    setListingStatus(filters.listingStatus);
+    setPropertyTypes(filters.propertyTypes);
+    setPriceRange(filters.priceRange);
+    setBedrooms(filters.bedrooms);
+    setBathroms(filters.bathroms);
+    setLocation(filters.location);
+    setSquirefeet(filters.squirefeet);
+    setyearBuild(filters.yearBuild);
+    setCategories(filters.categories);
+    setSearchTerm(filters.searchTerm);
+  }, []);
+
   // Hydrate Initial URL Filters
   useEffect(() => {
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
+      const search = p.get("q") || p.get("search");
+      const nextFilters = { ...DEFAULT_FILTERS };
+
+      if (search) {
+        nextFilters.searchTerm = search;
+      }
+
+      const purpose = p.get("purpose");
+      if (purpose === "SALE") {
+        nextFilters.listingStatus = "Buy";
+      } else if (purpose === "RENT") {
+        nextFilters.listingStatus = "Rent";
+      }
+
       const category = p.get("propertyType");
       if (category) {
         const capitalized =
           category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
-        setPropertyTypes([capitalized]);
+        nextFilters.propertyTypes = [capitalized];
       }
 
       const cityParams = p.get("city");
       if (cityParams) {
         const capitalizedCity =
           cityParams.charAt(0).toUpperCase() + cityParams.slice(1).toLowerCase();
-        setLocation(capitalizedCity);
+        nextFilters.location = capitalizedCity;
       }
+
+      applyActiveFilters(nextFilters);
+      setDraftFilters(nextFilters);
     }
     // Mark hydration complete — batched with filter state updates above
     setHydrated(true);
-  }, []);
+  }, [applyActiveFilters]);
 
   // Debounce timer ref
   const debounceRef = useRef(null);
@@ -156,8 +232,9 @@ export default function ProperteyFiltering() {
           ITEMS_PER_PAGE,
           filters,
         );
-        if (response?.success && response?.data) {
-          let items = response.data.items || [];
+        if (response?.success !== false) {
+          const payload = getListingsPayload(response);
+          let items = getListingItems(payload);
 
           // Client-side amenities filtering (backend doesn't support it)
           if (categories.length > 0) {
@@ -169,14 +246,15 @@ export default function ProperteyFiltering() {
             });
           }
 
+          const nextTotalItems =
+            categories.length > 0 ? items.length : getListingTotal(payload, items);
+
           setListings(items);
-          setTotalItems(
-            categories.length > 0 ? items.length : response.data.total || 0,
-          );
+          setTotalItems(nextTotalItems);
           setTotalPages(
             categories.length > 0
               ? Math.ceil(items.length / ITEMS_PER_PAGE) || 1
-              : response.data.totalPages || 1,
+              : getListingTotalPages(payload, nextTotalItems),
           );
         } else {
           setListings([]);
@@ -238,18 +316,62 @@ export default function ProperteyFiltering() {
   ];
 
   // Filter handler functions
+  const closeFilterOverlayFromEvent = (event) => {
+    const dropdownMenu = event?.currentTarget?.closest?.(".dropdown-menu");
+    const dropdownToggle = dropdownMenu?.previousElementSibling;
+    const bootstrapDropdown =
+      typeof window !== "undefined" ? window.bootstrap?.Dropdown : null;
+
+    if (dropdownToggle && bootstrapDropdown) {
+      bootstrapDropdown.getOrCreateInstance(dropdownToggle).hide();
+    } else if (dropdownMenu && dropdownToggle) {
+      dropdownToggle.classList.remove("show");
+      dropdownToggle.setAttribute("aria-expanded", "false");
+      dropdownMenu.classList.remove("show");
+      dropdownMenu.removeAttribute("data-bs-popper");
+    }
+
+    const offcanvas = event?.currentTarget?.closest?.(".offcanvas");
+    const bootstrapOffcanvas =
+      typeof window !== "undefined" ? window.bootstrap?.Offcanvas : null;
+
+    if (offcanvas && bootstrapOffcanvas) {
+      bootstrapOffcanvas.getOrCreateInstance(offcanvas).hide();
+    }
+  };
+
+  const applyFilterValues = (values = {}, event) => {
+    const nextFilters = {
+      ...draftFilters,
+      ...values,
+      propertyTypes: values.propertyTypes
+        ? [...values.propertyTypes]
+        : [...draftFilters.propertyTypes],
+      priceRange: values.priceRange
+        ? [...values.priceRange]
+        : [...draftFilters.priceRange],
+      squirefeet: values.squirefeet
+        ? [...values.squirefeet]
+        : [...draftFilters.squirefeet],
+      yearBuild: values.yearBuild ? [...values.yearBuild] : [...draftFilters.yearBuild],
+      categories: values.categories
+        ? [...values.categories]
+        : [...draftFilters.categories],
+    };
+
+    setDraftFilters(nextFilters);
+    applyActiveFilters(nextFilters);
+    closeFilterOverlayFromEvent(event);
+  };
+
+  const applyDraftFilters = (event) => {
+    applyFilterValues({}, event);
+  };
+
   const resetFilter = () => {
-    setListingStatus("All");
-    setPropertyTypes([]);
-    setPriceRange([0, 100000000]);
-    setBedrooms(0);
-    setBathroms(0);
-    setLocation("All Cities");
-    setSquirefeet([]);
-    setyearBuild([0, 2050]);
-    setCategories([]);
+    setDraftFilters(DEFAULT_FILTERS);
+    applyActiveFilters(DEFAULT_FILTERS);
     setCurrentSortingOption("Newest");
-    setSearchTerm("");
     document.querySelectorAll(".filterInput").forEach(function (element) {
       element.value = null;
     });
@@ -259,47 +381,56 @@ export default function ProperteyFiltering() {
   };
 
   const handlelistingStatus = (elm) => {
-    setListingStatus((pre) => (pre == elm ? "All" : elm));
+    setDraftFilters((pre) => ({
+      ...pre,
+      listingStatus: pre.listingStatus == elm ? "All" : elm,
+    }));
   };
 
   const handlepropertyTypes = (elm) => {
     if (elm == "All") {
-      setPropertyTypes([]);
+      setDraftFilters((pre) => ({ ...pre, propertyTypes: [] }));
     } else {
-      setPropertyTypes((pre) =>
-        pre.includes(elm) ? [...pre.filter((el) => el != elm)] : [...pre, elm],
-      );
+      setDraftFilters((pre) => ({
+        ...pre,
+        propertyTypes: pre.propertyTypes.includes(elm)
+          ? pre.propertyTypes.filter((el) => el != elm)
+          : [...pre.propertyTypes, elm],
+      }));
     }
   };
   const handlepriceRange = (elm) => {
-    setPriceRange(elm);
+    setDraftFilters((pre) => ({ ...pre, priceRange: elm }));
   };
   const handlebedrooms = (elm) => {
-    setBedrooms(elm);
+    setDraftFilters((pre) => ({ ...pre, bedrooms: elm }));
   };
   const handlebathroms = (elm) => {
-    setBathroms(elm);
+    setDraftFilters((pre) => ({ ...pre, bathroms: elm }));
   };
   const handlelocation = (elm) => {
-    setLocation(elm);
+    setDraftFilters((pre) => ({ ...pre, location: elm }));
   };
   const handlesquirefeet = (elm) => {
-    setSquirefeet(elm);
+    setDraftFilters((pre) => ({ ...pre, squirefeet: elm }));
   };
   const handleyearBuild = (elm) => {
-    setyearBuild(elm);
+    setDraftFilters((pre) => ({ ...pre, yearBuild: elm }));
   };
   const handlecategories = (elm) => {
     if (elm == "All") {
-      setCategories([]);
+      setDraftFilters((pre) => ({ ...pre, categories: [] }));
     } else {
-      setCategories((pre) =>
-        pre.includes(elm) ? [...pre.filter((el) => el != elm)] : [...pre, elm],
-      );
+      setDraftFilters((pre) => ({
+        ...pre,
+        categories: pre.categories.includes(elm)
+          ? pre.categories.filter((el) => el != elm)
+          : [...pre.categories, elm],
+      }));
     }
   };
   const handlesearch = (elm) => {
-    setSearchTerm(elm);
+    setDraftFilters((pre) => ({ ...pre, searchTerm: elm }));
   };
 
   const filterFunctions = {
@@ -313,19 +444,23 @@ export default function ProperteyFiltering() {
     handleyearBuild,
     handlecategories,
     handlesearch,
-    priceRange,
-    listingStatus,
-    propertyTypes,
+    applyFilters: applyDraftFilters,
+    applyFilterValues,
+    priceRange: draftFilters.priceRange,
+    listingStatus: draftFilters.listingStatus,
+    propertyTypes: draftFilters.propertyTypes,
     resetFilter,
-    bedrooms,
-    bathroms,
-    location,
-    squirefeet,
-    yearBuild,
-    categories,
-    searchTerm,
-    setPropertyTypes,
-    setCategories,
+    bedrooms: draftFilters.bedrooms,
+    bathroms: draftFilters.bathroms,
+    location: draftFilters.location,
+    squirefeet: draftFilters.squirefeet,
+    yearBuild: draftFilters.yearBuild,
+    categories: draftFilters.categories,
+    searchTerm: draftFilters.searchTerm,
+    setPropertyTypes: (nextPropertyTypes) =>
+      setDraftFilters((pre) => ({ ...pre, propertyTypes: nextPropertyTypes })),
+    setCategories: (nextCategories) =>
+      setDraftFilters((pre) => ({ ...pre, categories: nextCategories })),
   };
 
   return (

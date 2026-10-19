@@ -7,10 +7,26 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 
-const DefaultHeader = () => {
+const DefaultHeader = ({ brand: brandProp, header: headerProp }) => {
   const [navbar, setNavbar] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
+  const siteSettings = useSiteSettings();
+  const brand = brandProp || siteSettings.brand;
+  const header = headerProp || siteSettings.header;
+  const logoUrl = brand?.logoUrl || brand?.logoDarkUrl;
+  const stickyLogoUrl = brand?.logoDarkUrl || brand?.logoUrl;
+  const brandName = brand?.name || "Real Estate";
+  const brandTextStyle = {
+    display: "inline-block",
+    maxWidth: "138px",
+    lineHeight: "44px",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    verticalAlign: "middle",
+  };
 
   const changeBackground = () => {
     if (window.scrollY >= 10) {
@@ -36,25 +52,43 @@ const DefaultHeader = () => {
       >
         <nav className="posr">
           <div className="container posr menu_bdrt1">
-            <div className="row align-items-center justify-content-between">
+            <div className="row align-items-center justify-content-between flex-nowrap">
               <div className="col-auto">
                 <div className="d-flex align-items-center justify-content-between">
                   <div className="logos mr40">
                     <Link className="header-logo logo1" href="/">
-                      <Image
-                        width={138}
-                        height={44}
-                        src="/images/header-logo2.svg"
-                        alt="Header Logo"
-                      />
+                      {logoUrl ? (
+                        <img
+                          width={138}
+                          height={44}
+                          src={logoUrl}
+                          alt={brandName}
+                        />
+                      ) : (
+                        <span
+                          className="fz24 fw600 dark-color"
+                          style={brandTextStyle}
+                        >
+                          {brandName}
+                        </span>
+                      )}
                     </Link>
                     <Link className="header-logo logo2" href="/">
-                      <Image
-                        width={138}
-                        height={44}
-                        src="/images/header-logo2.svg"
-                        alt="Header Logo"
-                      />
+                      {stickyLogoUrl ? (
+                        <img
+                          width={138}
+                          height={44}
+                          src={stickyLogoUrl}
+                          alt={brandName}
+                        />
+                      ) : (
+                        <span
+                          className="fz24 fw600 dark-color"
+                          style={brandTextStyle}
+                        >
+                          {brandName}
+                        </span>
+                      )}
                     </Link>
                   </div>
                   {/* End Logo */}
@@ -66,7 +100,7 @@ const DefaultHeader = () => {
               {/* End .col-auto */}
 
               <div className="col-auto">
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center flex-nowrap">
                   {isAuthenticated ? (
                     <div className="list-inline-item position-relative">
                       <a
@@ -104,22 +138,22 @@ const DefaultHeader = () => {
                   ) : (
                     <a
                       href="#"
-                      className="login-info d-flex align-items-cente"
+                      className="login-info d-flex align-items-center"
                       data-bs-toggle="modal"
                       data-bs-target="#loginSignupModal"
                       role="button"
                     >
-                      <i className="far fa-user-circle fz16 me-2" />{" "}
-                      <span className="d-none d-xl-block">
-                        Login / Register
-                      </span>
-                    </a>
+                        <i className="far fa-user-circle fz16 me-2" />{" "}
+                        <span className="d-none d-xl-block">
+                          {header?.loginLabel || "Login / Register"}
+                        </span>
+                      </a>
                   )}
                   <Link
                     className="ud-btn btn-white add-property bdrs60 mx-2 mx-xl-4"
                     href="/dashboard-add-property"
                   >
-                    Add Property
+                    {header?.addPropertyLabel || "Add Property"}
                     <i className="fal fa-arrow-right-long" />
                   </Link>
                   <a
@@ -164,7 +198,7 @@ const DefaultHeader = () => {
           aria-hidden="true"
         >
           <div className="modal-dialog  modal-dialog-scrollable modal-dialog-centered">
-            <LoginSignupModal />
+            <LoginSignupModal brand={brand} header={header} />
           </div>
         </div>
       </div>

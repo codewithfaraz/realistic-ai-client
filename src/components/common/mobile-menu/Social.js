@@ -1,5 +1,5 @@
-const Social = () => {
-  const socialLinks = [
+const Social = ({ footer }) => {
+  const socialLinks = footer?.socialLinks || [
     {
       id: 1,
       iconClass: "fab fa-facebook-f",

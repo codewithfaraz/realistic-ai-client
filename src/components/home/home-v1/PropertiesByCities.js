@@ -7,6 +7,30 @@ import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ListingsService } from "@/services/listings.service";
 
+const fallbackCities = [
+  { key: "lahore", label: "Lahore", count: 48, href: "/listings?city=Lahore" },
+  {
+    key: "islamabad",
+    label: "Islamabad",
+    count: 34,
+    href: "/listings?city=Islamabad",
+  },
+  {
+    key: "rawalpindi",
+    label: "Rawalpindi",
+    count: 29,
+    href: "/listings?city=Rawalpindi",
+  },
+  { key: "karachi", label: "Karachi", count: 41, href: "/listings?city=Karachi" },
+  {
+    key: "faisalabad",
+    label: "Faisalabad",
+    count: 17,
+    href: "/listings?city=Faisalabad",
+  },
+  { key: "multan", label: "Multan", count: 14, href: "/listings?city=Multan" },
+];
+
 const getCityImage = (key, index) => {
   switch (key.toLowerCase()) {
     case "lahore":
@@ -56,9 +80,7 @@ const PropertiesByCities = () => {
     );
   }
 
-  if (cities.length === 0) {
-    return null;
-  }
+  const cityItems = cities.length ? cities : fallbackCities;
 
   return (
     <>
@@ -86,7 +108,7 @@ const PropertiesByCities = () => {
           },
         }}
       >
-        {cities.map((city, index) => (
+        {cityItems.map((city, index) => (
           <SwiperSlide key={city.key}>
             <div className="item">
               <div className="feature-style1">

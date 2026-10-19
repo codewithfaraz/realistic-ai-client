@@ -5,6 +5,8 @@ import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import Image from "next/image";
 import "photoswipe/dist/photoswipe.css";
 
+const isRemoteImage = (src) => /^https?:\/\//.test(src || "");
+
 const PropertyGallery = ({ media, coverImageUrl }) => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
@@ -79,14 +81,25 @@ const PropertyGallery = ({ media, coverImageUrl }) => {
                         >
                           {images.map((item, i) => (
                             <SwiperSlide key={i}>
-                              <Image
-                                height={736}
-                                width={1100}
-                                src={item.url}
-                                alt={item.alt}
-                                className="w-100 h-auto bdrs12"
-                                style={{ objectFit: "cover", maxHeight: "500px" }}
-                              />
+                              {isRemoteImage(item.url) ? (
+                                <img
+                                  height={736}
+                                  width={1100}
+                                  src={item.url}
+                                  alt={item.alt}
+                                  className="w-100 h-auto bdrs12"
+                                  style={{ objectFit: "cover", maxHeight: "500px" }}
+                                />
+                              ) : (
+                                <Image
+                                  height={736}
+                                  width={1100}
+                                  src={item.url}
+                                  alt={item.alt}
+                                  className="w-100 h-auto bdrs12"
+                                  style={{ objectFit: "cover", maxHeight: "500px" }}
+                                />
+                              )}
                             </SwiperSlide>
                           ))}
                         </Swiper>
@@ -106,14 +119,25 @@ const PropertyGallery = ({ media, coverImageUrl }) => {
                               >
                                 {images.map((item, i) => (
                                   <SwiperSlide key={i}>
-                                    <Image
-                                      height={90}
-                                      width={120}
-                                      src={item.url}
-                                      alt={item.alt}
-                                      className="w-100 bdrs12 cover pointer"
-                                      style={{ objectFit: "cover", height: "80px" }}
-                                    />
+                                    {isRemoteImage(item.url) ? (
+                                      <img
+                                        height={90}
+                                        width={120}
+                                        src={item.url}
+                                        alt={item.alt}
+                                        className="w-100 bdrs12 cover pointer"
+                                        style={{ objectFit: "cover", height: "80px" }}
+                                      />
+                                    ) : (
+                                      <Image
+                                        height={90}
+                                        width={120}
+                                        src={item.url}
+                                        alt={item.alt}
+                                        className="w-100 bdrs12 cover pointer"
+                                        style={{ objectFit: "cover", height: "80px" }}
+                                      />
+                                    )}
                                   </SwiperSlide>
                                 ))}
                               </Swiper>

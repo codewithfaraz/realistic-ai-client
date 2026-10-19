@@ -34,6 +34,7 @@ const TopFilterBar = ({filterFunctions,setCurrentSortingOption,colstyle,setColst
                   <button
                     type="button"
                     className="done-btn ud-btn btn-thm drop_btn"
+                    onClick={(event) => filterFunctions?.applyFilters(event)}
                   >
                     Done
                   </button>
@@ -62,6 +63,7 @@ const TopFilterBar = ({filterFunctions,setCurrentSortingOption,colstyle,setColst
                   <button
                     type="button"
                     className="done-btn ud-btn btn-thm dropdown-toggle"
+                    onClick={(event) => filterFunctions?.applyFilters(event)}
                   >
                     Done
                   </button>
@@ -92,6 +94,7 @@ const TopFilterBar = ({filterFunctions,setCurrentSortingOption,colstyle,setColst
                   <button
                     type="button"
                     className="done-btn ud-btn btn-thm drop_btn3"
+                    onClick={(event) => filterFunctions?.applyFilters(event)}
                   >
                     Done
                   </button>
@@ -127,6 +130,7 @@ const TopFilterBar = ({filterFunctions,setCurrentSortingOption,colstyle,setColst
                   <button
                     type="button"
                     className="done-btn ud-btn btn-thm drop_btn4"
+                    onClick={(event) => filterFunctions?.applyFilters(event)}
                   >
                     Done
                   </button>

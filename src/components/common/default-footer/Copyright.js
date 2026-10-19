@@ -4,21 +4,26 @@ const getCurrentYear = () => {
   return new Date().getFullYear();
 };
 
-const Footer = () => {
-  const footerMenuItems = [
-    {
-      label: "Privacy",
-      link: "#",
-    },
-    {
-      label: "Terms",
-      link: "#",
-    },
-    {
-      label: "Sitemap",
-      link: "#",
-    },
-  ];
+const Footer = ({ brand, footer }) => {
+  const brandName = brand?.name || "Real Estate";
+  const footerMenuItems =
+    footer?.legalLinks || [
+      {
+        label: "Privacy",
+        link: "/privacy-policy",
+      },
+      {
+        label: "Terms",
+        link: "/terms",
+      },
+      {
+        label: "Sitemap",
+        link: "/sitemap",
+      },
+    ];
+  const copyright =
+    footer?.copyright ||
+    `© ${brandName} ${getCurrentYear()} - All rights reserved`;
 
   return (
     <div className="container white-bdrt1 py-4">
@@ -26,16 +31,7 @@ const Footer = () => {
         <div className="col-sm-6">
           <div className="text-center text-lg-start">
             <p className="copyright-text text-gray ff-heading">
-              © Homez {getCurrentYear()}{" "}
-              <a
-                href="https://themeforest.net/user/ib-themes"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white"
-              >
-                ib-themes
-              </a>{" "}
-              - All rights reserved
+              {copyright}
             </p>
           </div>
         </div>

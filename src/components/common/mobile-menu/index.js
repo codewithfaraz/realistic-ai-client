@@ -5,12 +5,19 @@ import ContactInfo from "./ContactInfo";
 import Social from "./Social";
 import ProSidebarContent from "./ProSidebarContent";
 import { useAuth } from "@/context/AuthContext";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { useState, useRef, useEffect } from "react";
 
-const MobileMenu = () => {
+const MobileMenu = ({ brand, header, footer }) => {
   const { isAuthenticated, logout, isLoading } = useAuth();
+  const siteSettings = useSiteSettings();
+  const resolvedBrand = brand || siteSettings.brand;
+  const resolvedHeader = header || siteSettings.header;
+  const resolvedFooter = footer || siteSettings.footer;
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const accountMenuRef = useRef(null);
+  const logoUrl = resolvedBrand?.logoDarkUrl || resolvedBrand?.logoUrl;
+  const brandName = resolvedBrand?.name || "Real Estate";
 
   // Close account dropdown on outside click
   useEffect(() => {
@@ -71,12 +78,11 @@ const MobileMenu = () => {
                   />
                 </a>
                 <Link className="mobile_logo ms-3" href="/">
-                  <Image
-                    width={138}
-                    height={44}
-                    src="/images/header-logo2.svg"
-                    alt="logo"
-                  />
+                  {logoUrl ? (
+                    <img width={138} height={44} src={logoUrl} alt={brandName} />
+                  ) : (
+                    <span className="fz20 fw600 dark-color">{brandName}</span>
+                  )}
                 </Link>
               </div>
 
@@ -109,7 +115,9 @@ const MobileMenu = () => {
                     aria-label="Login or Register"
                   >
                     <i className="far fa-user-circle fz16 me-1" />
-                    <span className="fz14">Login / Register</span>
+                    <span className="fz14">
+                      {resolvedHeader?.loginLabel || "Login / Register"}
+                    </span>
                   </a>
                 )}
 
@@ -166,7 +174,9 @@ const MobileMenu = () => {
             >
               <span className="far fa-times"></span>
             </div>
-            <h4 className="title">Welcome to Homez</h4>
+            <h4 className="title">
+              {resolvedHeader?.mobileWelcome || `Welcome to ${brandName}`}
+            </h4>
           </div>
           {/* End header */}
 
@@ -177,15 +187,17 @@ const MobileMenu = () => {
 
               <div className="hiddenbar_footer position-relative bdrt1">
                 <div className="row pt45 pb30 pl30">
-                  <ContactInfo />
+                  <ContactInfo footer={resolvedFooter} />
                 </div>
                 {/* End .row */}
 
                 <div className="row pt30 pb30 bdrt1">
                   <div className="col-auto">
                     <div className="social-style-sidebar d-flex align-items-center pl30">
-                      <h6 className="me-4 mb-0">Follow us</h6>
-                      <Social />
+                      <h6 className="me-4 mb-0">
+                        {resolvedFooter?.socialTitle || "Follow us"}
+                      </h6>
+                      <Social footer={resolvedFooter} />
                     </div>
                   </div>
                 </div>

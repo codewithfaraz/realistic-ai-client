@@ -8,10 +8,26 @@ import ProperteyFiltering from "@/components/listing/grid-view/grid-full-3-col/P
 import React from "react";
 
 export const metadata = {
-  title: "Grid Full 3 Column || Homez - Real Estate NextJS Template",
+  title: "Listings",
 };
 
-const GridFull3Col = () => {
+const getListingPageTitle = (searchParams = {}) => {
+  const query = searchParams.q || searchParams.search;
+  const purpose = searchParams.purpose;
+  const purposeLabel =
+    purpose === "RENT" ? "For Rent" : purpose === "SALE" ? "For Sale" : "";
+
+  if (query && purposeLabel) return `${query} Properties ${purposeLabel}`;
+  if (query) return `${query} Properties`;
+  if (purposeLabel) return `Properties ${purposeLabel}`;
+
+  return "Properties";
+};
+
+const GridFull3Col = async ({ searchParams }) => {
+  const resolvedSearchParams = await searchParams;
+  const pageTitle = getListingPageTitle(resolvedSearchParams);
+
   return (
     <>
       {/* Main Header Nav */}
@@ -28,10 +44,10 @@ const GridFull3Col = () => {
           <div className="row">
             <div className="col-lg-12">
               <div className="breadcumb-style1">
-                <h2 className="title">New York Homes for Sale</h2>
+                <h2 className="title">{pageTitle}</h2>
                 <div className="breadcumb-list">
-                  <a href="#">Home</a>
-                  <a href="#">For Rent</a>
+                  <a href="/">Home</a>
+                  <a href="/listings">Listings</a>
                 </div>
                 <a
                   className="filter-btn-left mobile-filter-btn d-block d-lg-none"

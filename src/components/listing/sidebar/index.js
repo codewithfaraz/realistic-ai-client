@@ -117,7 +117,10 @@ const ListingSidebar = ({filterFunctions}) => {
 
       <div className="widget-wrapper mb20">
         <div className="btn-area d-grid align-items-center">
-          <button className="ud-btn btn-thm">
+          <button
+            className="ud-btn btn-thm"
+            onClick={(event) => filterFunctions?.applyFilters?.(event)}
+          >
             <span className="flaticon-search align-text-top pr10" />
             Search
           </button>

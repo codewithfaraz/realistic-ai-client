@@ -1,20 +1,21 @@
 import React from "react";
 
-const ContactInfo = () => {
-  const contactInfo = [
-    {
-      id: 1,
-      title: "Total Free Customer Care",
-      phone: "+(0) 123 050 945 02",
-      phoneHref: "tel:+012305094502", // Updated phoneHref to use "tel" URI
-    },
-    {
-      id: 2,
-      title: "Need Live Support?",
-      email: "hi@homez.com",
-      emailHref: "mailto:hi@homez.com", // Updated emailHref to use "mailto" URI
-    },
-  ];
+const ContactInfo = ({ footer }) => {
+  const contactInfo =
+    footer?.contacts || [
+      {
+        id: 1,
+        title: "Customer Care",
+        phone: footer?.phone || "+(0) 123 050 945 02",
+        phoneHref: `tel:${footer?.phone || "+012305094502"}`,
+      },
+      {
+        id: 2,
+        title: "Need Live Support?",
+        email: footer?.email || "support@example.com",
+        emailHref: `mailto:${footer?.email || "support@example.com"}`,
+      },
+    ];
 
   return (
     <>

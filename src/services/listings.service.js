@@ -6,7 +6,7 @@ export class ListingsService {
     params.append("page", page.toString());
     params.append("limit", limit.toString());
 
-    if (filters.search) params.append("search", filters.search);
+    if (filters.search) params.append("q", filters.search);
     if (filters.city) params.append("city", filters.city);
     if (filters.purpose) params.append("purpose", filters.purpose);
     if (filters.propertyType)
@@ -25,7 +25,15 @@ export class ListingsService {
       params.append("featured", filters.featured.toString());
     if (filters.amenities) params.append("amenities", filters.amenities);
     if (filters.sort) params.append("sort", filters.sort);
-    console.log(params.toString());
+    const response = await api.get(`/api/public/listings?${params.toString()}`);
+    return response.data;
+  }
+
+  static async getFeaturedListings(limit = 6) {
+    const params = new URLSearchParams();
+    params.append("featured", "true");
+    params.append("limit", limit.toString());
+
     const response = await api.get(`/api/public/listings?${params.toString()}`);
     return response.data;
   }

@@ -1,7 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const CallToActions = () => {
+const CallToActions = ({ cta }) => {
+  const ctaHref = cta?.ctaHref ?? "/contact";
+  const ctaLabel = cta?.ctaLabel ?? "Contact Us";
+  const phoneLabel = cta?.phoneLabel ?? cta?.phone ?? "+92 300 851 9087";
+  const phoneHref = cta?.phoneHref || `tel:${phoneLabel.replace(/\s/g, "")}`;
+
   return (
     <section className="our-cta pt0">
       <div className="cta-banner bgc-f7 mx-auto maxw1600 pt120 pt60-md pb120 pb60-md bdrs12 position-relative mx20-lg">
@@ -29,9 +34,12 @@ const CallToActions = () => {
           <div className="row align-items-center">
             <div className="col-lg-7 col-xl-6 " data-aos="fade-right">
               <div className="cta-style1">
-                <h2 className="cta-title">Need help? Talk to our expert.</h2>
+                <h2 className="cta-title">
+                  {cta?.title ?? "Need help? Talk to our expert."}
+                </h2>
                 <p className="cta-text mb-0">
-                  Talk to our experts or Browse through more properties.
+                  {cta?.subtitle ??
+                    "Talk to a local advisor about pricing, documents, viewings and the right area for your budget."}
                 </p>
               </div>
             </div>
@@ -40,17 +48,15 @@ const CallToActions = () => {
             <div className="col-lg-5 col-xl-6 " data-aos="fade-left">
               <div className="cta-btns-style1 d-block d-sm-flex align-items-center justify-content-lg-end">
                 <Link
-                  href="/contact"
+                  href={ctaHref}
                   className="ud-btn btn-transparent mr30 mr0-xs"
                 >
-                  Contact Us
+                  {ctaLabel}
                   <i className="fal fa-arrow-right-long" />
                 </Link>
-                this is the place where we born so do we have to start things
-                doing
-                <Link href="/contact" className="ud-btn btn-dark">
+                <Link href={phoneHref} className="ud-btn btn-dark">
                   <span className="flaticon-call vam pe-2" />
-                  920 851 9087
+                  {phoneLabel}
                 </Link>
               </div>
             </div>

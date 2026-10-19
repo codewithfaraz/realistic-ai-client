@@ -12,6 +12,36 @@ const formatPrice = (price, currency = "PKR") => {
   return `${currency} ${price.toLocaleString()}`;
 };
 
+const isRemoteImage = (src) => /^https?:\/\//.test(src || "");
+const fallbackListingImages = [
+  "/images/demo/listing-dha-lahore-house.jpg",
+  "/images/demo/listing-bahria-rawalpindi-villa.jpg",
+  "/images/demo/listing-islamabad-apartment.jpg",
+];
+
+const getListingImage = (listing, fallbackImage) =>
+  listing.thumbnailUrl ||
+  listing.featuredImageUrl ||
+  listing.coverImageUrl ||
+  listing.imageUrl ||
+  listing.image ||
+  listing.photoUrl ||
+  listing.images?.[0]?.url ||
+  listing.images?.[0]?.imageUrl ||
+  listing.media?.[0]?.url ||
+  fallbackImage;
+
+const getListingLocation = (listing) => {
+  const city = listing.city?.name || listing.city;
+  const area = listing.areaName || listing.neighborhood || listing.locality;
+  const address = listing.addressLine || listing.address || listing.location;
+
+  return [address, area, city].filter(Boolean).join(", ") || "Location available";
+};
+
+const getListingArea = (listing) =>
+  listing.areaSqft || listing.area || listing.sizeSqft || listing.coveredArea;
+
 const FeaturedListings = ({ data, colstyle, onRefresh, colClass }) => {
   const [savingIds, setSavingIds] = useState(new Set());
   const [savedIds, setSavedIds] = useState(new Set());
@@ -76,29 +106,49 @@ const FeaturedListings = ({ data, colstyle, onRefresh, colClass }) => {
 
   return (
     <>
-      {data.map((listing) => (
-        <div
-          className={` ${
-            colClass ? colClass : colstyle ? "col-sm-12 col-lg-6" : "col-sm-6 col-lg-4"
-          }  `}
-          key={listing.id}
-        >
+      {data.map((listing, index) => {
+        const fallbackImage = fallbackListingImages[index % fallbackListingImages.length];
+        const imageUrl = getListingImage(listing, fallbackImage);
+        const title = listing.title || listing.name || "Property listing";
+        const listingArea = getListingArea(listing);
+
+        return (
           <div
-            className={
-              colstyle
-                ? "listing-style1 listCustom listing-type"
-                : "listing-style1"
-            }
+            className={` ${
+              colClass ? colClass : colstyle ? "col-sm-12 col-lg-6" : "col-sm-6 col-lg-4"
+            }  `}
+            key={listing.id}
           >
-            <div className="list-thumb">
-              <Image
-                width={382}
-                height={248}
-                className="w-100  cover"
-                style={{ height: "230px", objectFit: "cover" }}
-                src={listing.thumbnailUrl || "/images/listings/g1-1.jpg"}
-                alt={listing.thumbnailAltText || listing.title || "listing"}
-              />
+            <div
+              className={
+                colstyle
+                  ? "listing-style1 listCustom listing-type"
+                  : "listing-style1"
+              }
+            >
+              <div className="list-thumb">
+                {isRemoteImage(imageUrl) ? (
+                <img
+                  width={382}
+                  height={248}
+                  className="w-100 cover"
+                  style={{ height: "230px", objectFit: "cover" }}
+                  src={imageUrl}
+                  alt={listing.thumbnailAltText || title || "listing"}
+                  onError={(event) => {
+                    event.currentTarget.src = fallbackImage;
+                  }}
+                />
+              ) : (
+                <Image
+                  width={382}
+                  height={248}
+                  className="w-100 cover"
+                  style={{ height: "230px", objectFit: "cover" }}
+                  src={imageUrl}
+                  alt={listing.thumbnailAltText || title || "listing"}
+                />
+              )}
               <div className="sale-sticker-wrap">
                 {listing.isFeatured && (
                   <div className="list-tag fz12">
@@ -124,14 +174,10 @@ const FeaturedListings = ({ data, colstyle, onRefresh, colClass }) => {
             <div className="list-content">
               <h6 className="list-title">
                 <Link href={`/single-v6/${listing.slug || listing.id}`}>
-                  {listing.title}
+                  {title}
                 </Link>
               </h6>
-              <p className="list-text">
-                {listing.addressLine
-                  ? `${listing.addressLine}, ${listing.city}`
-                  : listing.city}
-              </p>
+              <p className="list-text">{getListingLocation(listing)}</p>
               <div className="list-meta d-flex align-items-center">
                 {listing.bedrooms != null && (
                   <a href="#">
@@ -144,9 +190,9 @@ const FeaturedListings = ({ data, colstyle, onRefresh, colClass }) => {
                     bath
                   </a>
                 )}
-                {listing.areaSqft != null && (
+                {listingArea != null && (
                   <a href="#">
-                    <span className="flaticon-expand" /> {listing.areaSqft} sqft
+                    <span className="flaticon-expand" /> {listingArea} sqft
                   </a>
                 )}
               </div>
@@ -197,8 +243,9 @@ const FeaturedListings = ({ data, colstyle, onRefresh, colClass }) => {
               </div>
             </div>
           </div>
-        </div>
-      ))}
+          </div>
+        );
+      })}
     </>
   );
 };

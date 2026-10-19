@@ -1,6 +1,7 @@
 "use client";
 import ScrollToTop from "@/components/common/ScrollTop";
 import { AuthProvider } from "@/context/AuthContext";
+import { SiteSettingsProvider } from "@/context/SiteSettingsContext";
 import { Toaster } from "react-hot-toast";
 import Aos from "aos";
 import "swiper/css";
@@ -46,18 +47,20 @@ export default function RootLayout({ children }) {
         cz-shortcut-listen="false"
       >
         <AuthProvider>
-          <div className="wrapper ovh">{children}</div>
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                borderRadius: "8px",
-                background: "#333",
-                color: "#fff",
-              },
-            }}
-          />
+          <SiteSettingsProvider>
+            <div className="wrapper ovh">{children}</div>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  borderRadius: "8px",
+                  background: "#333",
+                  color: "#fff",
+                },
+              }}
+            />
+          </SiteSettingsProvider>
         </AuthProvider>
 
         <ScrollToTop />

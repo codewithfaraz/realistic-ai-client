@@ -9,6 +9,8 @@ const formatPrice = (price, currency = "PKR") => {
   return `${currency} ${price.toLocaleString()}`;
 };
 
+const isRemoteImage = (src) => /^https?:\/\//.test(src || "");
+
 const NearbySimilarProperty = ({ relatedListings }) => {
   const listings = relatedListings || [];
 
@@ -48,16 +50,23 @@ const NearbySimilarProperty = ({ relatedListings }) => {
             <div className="item">
               <div className="listing-style1">
                 <div className="list-thumb">
-                  <Image
-                    width={382}
-                    height={248}
-                    className="w-100 h-100 cover"
-                    src={
-                      listing.coverImageUrl ||
-                      "/images/listings/g1-1.jpg"
-                    }
-                    alt={listing.coverImageAltText || listing.title || "listing"}
-                  />
+                  {isRemoteImage(listing.coverImageUrl) ? (
+                    <img
+                      width={382}
+                      height={248}
+                      className="w-100 h-100 cover"
+                      src={listing.coverImageUrl}
+                      alt={listing.coverImageAltText || listing.title || "listing"}
+                    />
+                  ) : (
+                    <Image
+                      width={382}
+                      height={248}
+                      className="w-100 h-100 cover"
+                      src={listing.coverImageUrl || "/images/listings/g1-1.jpg"}
+                      alt={listing.coverImageAltText || listing.title || "listing"}
+                    />
+                  )}
                   <div className="sale-sticker-wrap">
                     {listing.isFeatured && (
                       <div className="list-tag rounded-0 fz12">

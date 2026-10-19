@@ -6,6 +6,19 @@ import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ListingsService } from "@/services/listings.service";
 
+const fallbackPropertyTypes = [
+  { key: "house", label: "Houses", count: 42, href: "/listings?type=house" },
+  {
+    key: "apartment",
+    label: "Apartments",
+    count: 36,
+    href: "/listings?type=apartment",
+  },
+  { key: "plot", label: "Residential Plots", count: 28, href: "/listings?type=plot" },
+  { key: "villa", label: "Villas", count: 18, href: "/listings?type=villa" },
+  { key: "office", label: "Commercial", count: 15, href: "/listings?type=office" },
+];
+
 const getIcon = (key) => {
   switch (key.toLowerCase()) {
     case "apartment":
@@ -54,10 +67,6 @@ const ApartmentType = () => {
     );
   }
 
-  if (propertyTypes.length === 0) {
-    return null;
-  }
-
   return (
     <Swiper
       className="overflow-visible"
@@ -98,7 +107,7 @@ const ApartmentType = () => {
         },
       }}
     >
-      {propertyTypes.map((type) => (
+      {(propertyTypes.length ? propertyTypes : fallbackPropertyTypes).map((type) => (
         <SwiperSlide key={type.key}>
           <div className="item">
             <Link href={type.href}>
